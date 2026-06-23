@@ -43,7 +43,7 @@ export default function VMDetailPage({ params }: { params: Promise<{ id: string 
 
   const snapMutation = useMutation({
     mutationFn: (name?: string) => vmApi.createSnapshot(vmId, name),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['snapshots', vmId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['sx`napshots', vmId] }),
   });
 
   const openConsole = async () => {
