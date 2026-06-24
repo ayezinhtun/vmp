@@ -8,6 +8,10 @@ import CustomersView from './components/views/Customers'
 import { TeamView, SettingsView } from './components/views/Team'
 import { FinanceView, ReportsView } from './components/views/Finance'
 import { TasksView, ActivityView, AlertsView, NetworkView } from './components/views/Ops'
+import { CustomerAccountManagementView } from './components/views/CustomerAccounts'
+import { AgingView, ReconciliationView, RecurringView, TaxView } from './components/views/FinanceExtras'
+import { AccountSettingsView } from './components/views/AccountSettings'
+import { SystemHealthView, AuditLogView, AnnouncementsView, ApiKeysView, BackupCenterView } from './components/views/AdminExtras'
 import RoleSwitcher from './components/common/RoleSwitcher'
 import Toasts from './components/common/Toasts'
 import AIChatWidget from './components/common/AIChat'
@@ -205,7 +209,7 @@ const AppInner = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: key
         {view === 'patches' && <PlaceholderView title="Patch Queue" description="OS patch management - coming soon"/>}
         {view === 'firewall' && <PlaceholderView title="Firewall Rules" description="Firewall configuration - coming soon"/>}
         {view === 'customers' && <CustomersView openCust={openCust} openModal={openModal}/>}
-        {view === 'customer-accounts' && <PlaceholderView title="Customer Accounts" description="Customer account management - coming soon"/>}
+        {view === 'customer-accounts' && <CustomerAccountManagementView openCust={openCust} openModal={openModal}/>}
         {view === 'kyc' && <PlaceholderView title="KYC Review" description="KYC review workflow - coming soon"/>}
         {view === 'pipeline' && <PlaceholderView title="Sales Pipeline" description="Sales pipeline view - coming soon"/>}
         {view === 'quotes' && <PlaceholderView title="Quotes" description="Quote management - coming soon"/>}
@@ -213,18 +217,18 @@ const AppInner = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: key
         {view === 'trials' && <PlaceholderView title="Trial Conversions" description="Trial conversion tracking - coming soon"/>}
         {view === 'finance' && <FinanceView openCust={(_id: string) => {}} openModal={openModal}/>}
         {view === 'reports' && <ReportsView/>}
-        {view === 'aging' && <PlaceholderView title="Aging Receivables" description="Aging receivables report - coming soon"/>}
-        {view === 'reconciliation' && <PlaceholderView title="Reconciliation" description="Payment reconciliation - coming soon"/>}
-        {view === 'recurring' && <PlaceholderView title="Recurring Billing" description="Recurring billing management - coming soon"/>}
-        {view === 'tax' && <PlaceholderView title="Tax / VAT Report" description="Tax and VAT reporting - coming soon"/>}
+        {view === 'aging' && <AgingView/>}
+        {view === 'reconciliation' && <ReconciliationView/>}
+        {view === 'recurring' && <RecurringView/>}
+        {view === 'tax' && <TaxView/>}
         {view === 'team' && <TeamView openModal={openModal}/>}
         {view === 'settings' && <SettingsView/>}
-        {view === 'health' && <PlaceholderView title="System Health" description="System health monitoring - coming soon"/>}
-        {view === 'audit' && <PlaceholderView title="Audit Log" description="Audit trail - coming soon"/>}
-        {view === 'announcements' && <PlaceholderView title="Announcements" description="System announcements - coming soon"/>}
-        {view === 'apikeys' && <PlaceholderView title="API & Webhooks" description="API key management - coming soon"/>}
-        {view === 'backups' && <PlaceholderView title="Backup Center" description="Backup management - coming soon"/>}
-        {view === 'account' && <PlaceholderView title="Account Settings" description="User account settings - coming soon"/>}
+        {view === 'health' && <SystemHealthView/>}
+        {view === 'audit' && <AuditLogView/>}
+        {view === 'announcements' && <AnnouncementsView/>}
+        {view === 'apikeys' && <ApiKeysView openModal={openModal}/>}
+        {view === 'backups' && <BackupCenterView/>}
+        {view === 'account' && <AccountSettingsView role={tw.role} setView={setView}/>}
       </div>
 
       {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} setView={setView} openVM={openVM} openCust={openCust} openModal={openModal}/>}
