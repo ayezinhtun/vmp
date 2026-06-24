@@ -3,7 +3,7 @@ import type { Config } from 'tailwindcss';
 // Design tokens mapped from original styles.css (oklch → CSS variables)
 const config: Config = {
   darkMode:  ['class'],
-  content:   ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './hooks/**/*.{ts,tsx}'],
+  content:   ['./src/**/*.{ts,tsx}'],
   theme: {
     container: { center: true, padding: '1.75rem', screens: { '2xl': '1400px' } },
     extend: {

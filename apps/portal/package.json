@@ -2,20 +2,18 @@
   "name": "vmp-portal",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev":   "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint":  "next lint"
+    "dev":   "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint":  "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "next":                     "14.2.3",
     "react":                    "^18.3.0",
     "react-dom":                "^18.3.0",
-    "next-auth":                "^4.24.7",
 
     "@radix-ui/react-avatar":        "^1.0.4",
-
     "@radix-ui/react-dialog":        "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label":         "^2.0.2",
@@ -49,10 +47,11 @@
     "@types/react":             "^18.3.3",
     "@types/react-dom":         "^18.3.0",
     "typescript":               "^5.4.5",
+    "vite":                     "^5.2.0",
+    "@vitejs/plugin-react":     "^4.2.1",
     "tailwindcss":              "^3.4.3",
     "autoprefixer":             "^10.4.19",
     "postcss":                  "^8.4.38",
-    "eslint":                   "^8.57.0",
-    "eslint-config-next":       "14.2.3"
+    "eslint":                   "^8.57.0"
   }
 }
