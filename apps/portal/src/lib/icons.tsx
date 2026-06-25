@@ -36,7 +36,7 @@ const Icon: React.FC<IconProps> = ({ name, size = 16, stroke = 1.6, className = 
     case 'chevron-left': return <svg {...props}><path d="m15 6-6 6 6 6"/></svg>
     case 'more': return <svg {...props}><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
     case 'lock': return <svg {...props}><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-    case 'shield': return <svg {...props}><path d="M12 3 4 6v6c0 4 3.5 7.5 8 9 4.5-1.5 8-5 8-9V6l-8-3z"/><path d="l8.5 12 2.5 2.5L16 10"/></svg>
+    case 'shield': return <svg {...props}><path d="M12 3 4 6v6c0 4 3.5 7.5 8 9 4.5-1.5 8-5 8-9V6l-8-3z"/><path d="m9 12 2 2 4-4"/></svg>
     case 'globe': return <svg {...props}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
     case 'network': return <svg {...props}><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v3M12 11l-5.5 5.5M12 11l5.5 5.5"/></svg>
     case 'database': return <svg {...props}><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/></svg>

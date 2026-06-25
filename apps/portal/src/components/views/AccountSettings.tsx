@@ -10,7 +10,7 @@ interface AccountSettingsViewProps {
   setView: (view: string) => void
 }
 
-export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({ role, setView }) => {
+export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({ role }) => {
   const { state, updateMember, toast } = useStore()
 
   // Map current role to a team member identity

@@ -16,6 +16,7 @@ interface SidebarProps {
   role: string
   roleNames?: Record<string, string>
   onAccountClick?: () => void
+  onLogout?: () => void
 }
 
 interface TopbarProps {
@@ -73,7 +74,7 @@ const NAV: NavItem[] = [
   { id: 'backups', label: 'Backup center', icon: 'database' },
 ]
 
-export const Sidebar: React.FC<SidebarProps> = ({ view, setView, role, roleNames = {}, onAccountClick }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ view, setView, role, roleNames = {}, onAccountClick, onLogout }) => {
   const roleLabel = roleNames[role] || role
   const HIDDEN = new Set(['calendar', 'network', 'console', 'nodes', 'topology', 'snapshots', 'maintenance', 'patches', 'firewall', 'health', 'apikeys', 'backups', 'pipeline', 'quotes', 'followups', 'trials'])
   const items = (role === 'Customer' ? [
@@ -126,7 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ view, setView, role, roleNames
           <div className="who">{role === 'Customer' ? 'Thiri Ko' : (role === 'Admin' ? 'Min Khant' : role === 'Sales' ? 'Su Su' : role === 'Engineer' ? 'Ko Thein' : 'Daw Aye')}</div>
           <div className="role">{roleLabel}</div>
         </div>
-        <button className="icon-btn" title="Sign out"><Icon name="logout" size={14}/></button>
+        <button className="icon-btn" title="Sign out" onClick={onLogout}><Icon name="logout" size={14}/></button>
       </div>
     </aside>
   )

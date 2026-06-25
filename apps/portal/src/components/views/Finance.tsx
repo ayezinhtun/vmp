@@ -75,7 +75,20 @@ const FinanceView: React.FC<FinanceViewProps> = ({ openCust, openModal }) => {
                 <tr key={i.id} onClick={() => setSelected(i)}>
                   <td className="mono fw-6">{i.id}</td>
                   <td><div className="fw-6 text-sm">{c?.company}</div><div className="text-xs text-mute">{c?.name}</div></td>
-                  <td><div className="flex gap-1 wrap">{i.vms.map(v => <span key={v} className="id-tag">{v}</span>)}</div></td>
+                  <td>
+                    <div className="flex gap-1 wrap">
+                      {i.vms.map((vmId: string) => {
+                        const vm = state.vms.find(v => v.id === vmId)
+                        return vm ? (
+                          <span key={vmId} className="id-tag" title={`${vm.vcpu}c · ${vm.ram}GB · ${vm.storage}GB`}>
+                            {vmId}
+                          </span>
+                        ) : (
+                          <span key={vmId} className="id-tag">{vmId}</span>
+                        )
+                      })}
+                    </div>
+                  </td>
                   <td className="tnum text-sm">{i.issued}</td>
                   <td className="tnum text-sm">{i.due}</td>
                   <td className="right tnum fw-7">MMK {formatMMK(i.amount)}</td>

@@ -1,7 +1,0 @@
-{
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/(dashboard)/vms/page": "app/(dashboard)/vms/page.js",
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(dashboard)/vms/[id]/page": "app/(dashboard)/vms/[id]/page.js",
-  "/(dashboard)/deploy/page": "app/(dashboard)/deploy/page.js"
-}

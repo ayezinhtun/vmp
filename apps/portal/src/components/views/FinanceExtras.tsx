@@ -11,7 +11,7 @@ export const AgingView: React.FC = () => {
   const TODAY = (window as any).MOCK.TODAY
   const buckets: Record<string, any[]> = { current: [], '0-30': [], '31-60': [], '61-90': [], '90+': [] }
   state.invoices.filter((i: any) => i.status !== 'Payment Received').forEach((i: any) => {
-    const days = Math.ceil((TODAY - new Date(i.due)) / 86400000)
+    const days = Math.ceil((TODAY.getTime() - new Date(i.due).getTime()) / 86400000)
     if (days < 0) buckets.current.push({ ...i, days })
     else if (days <= 30) buckets['0-30'].push({ ...i, days })
     else if (days <= 60) buckets['31-60'].push({ ...i, days })
@@ -192,7 +192,7 @@ export const RecurringView: React.FC = () => {
         <div className="metric"><div className="label">MRR</div><div className="value tnum" style={{ fontSize: 20 }}>MMK {formatMMK(cycles.reduce((a: number, v: any) => a + v.priceMonth, 0))}</div></div>
         <div className="metric"><div className="label">ARR (projected)</div><div className="value tnum" style={{ fontSize: 20 }}>MMK {formatMMK(cycles.reduce((a: number, v: any) => a + v.priceMonth, 0) * 12)}</div></div>
         <div className="metric"><div className="label">Auto-renew on</div><div className="value tnum">{cycles.length}</div><div className="trend">All subscriptions</div></div>
-        <div className="metric"><div className="label">Next 7 days billing</div><div className="value tnum" style={{ fontSize: 20 }}>MMK {formatMMK(cycles.filter((v: any) => { const d = (new Date(v.nextBill) - (window as any).MOCK.TODAY) / 86400000; return d >= 0 && d <= 7; }).reduce((a: number, v: any) => a + v.priceMonth, 0))}</div></div>
+        <div className="metric"><div className="label">Next 7 days billing</div><div className="value tnum" style={{ fontSize: 20 }}>MMK {formatMMK(cycles.filter((v: any) => { const d = (new Date(v.nextBill).getTime() - (window as any).MOCK.TODAY.getTime()) / 86400000; return d >= 0 && d <= 7; }).reduce((a: number, v: any) => a + v.priceMonth, 0))}</div></div>
       </div>
 
       <div className="card">
@@ -264,9 +264,9 @@ export const TaxView: React.FC = () => {
               {monthly.map(([m, rev, tax]) => (
                 <tr key={m}>
                   <td className="fw-6">{m}</td>
-                  <td className="right tnum">MMK {formatMMK(rev)}</td>
-                  <td className="right tnum">MMK {formatMMK(tax)}</td>
-                  <td className="right tnum">MMK {formatMMK(rev - tax)}</td>
+                  <td className="right tnum">MMK {formatMMK(rev as number)}</td>
+                  <td className="right tnum">MMK {formatMMK(tax as number)}</td>
+                  <td className="right tnum">MMK {formatMMK((rev as number) - (tax as number))}</td>
                   <td><span className="pill ok"><span className="dot"/>Filed</span></td>
                 </tr>
               ))}

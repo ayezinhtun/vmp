@@ -16,7 +16,7 @@ interface CustomerAccountManagementViewProps {
 }
 
 export const CustomerAccountManagementView: React.FC<CustomerAccountManagementViewProps> = ({ openCust, openModal }) => {
-  const { state, updateCustomer, toast, setKYC } = useStore()
+  const { state, updateCustomer, toast } = useStore()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [segment, setSegment] = useState('all')
   const [search, setSearch] = useState('')
@@ -27,7 +27,7 @@ export const CustomerAccountManagementView: React.FC<CustomerAccountManagementVi
     { id: 'all', label: 'All customers', filter: () => true },
     { id: 'high-value', label: 'High value (>5M MMK)', filter: (c: any) => c.totalSpend > 5000000 },
     { id: 'at-risk', label: 'At risk (KYC issue)', filter: (c: any) => c.kyc === 'Rejected' || c.kyc === 'Pending' },
-    { id: 'new-30d', label: 'New (last 30 days)', filter: (c: any) => (window.MOCK.TODAY - new Date(c.since)) / 86400000 <= 30 },
+    { id: 'new-30d', label: 'New (last 30 days)', filter: (c: any) => (window.MOCK.TODAY.getTime() - new Date(c.since).getTime()) / 86400000 <= 30 },
     { id: 'inactive', label: 'Inactive', filter: (c: any) => c.status === 'Inactive' || state.vms.filter((v: any) => v.customer === c.id && v.status === 'Active').length === 0 },
     { id: 'enterprise', label: 'Enterprise (>3 VMs)', filter: (c: any) => state.vms.filter((v: any) => v.customer === c.id && v.status === 'Active').length > 3 },
   ]
@@ -58,7 +58,7 @@ export const CustomerAccountManagementView: React.FC<CustomerAccountManagementVi
       {/* Feature 1: KPI tiles */}
       <div className="grid-4 mb-4">
         {[
-          { label: 'Total customers', value: state.customers.length, sub: `+${state.customers.filter((c: any) => (window.MOCK.TODAY - new Date(c.since))/86400000 <= 30).length} new this month`, icon: 'users', accent: 'oklch(0.6 0.13 250)' },
+          { label: 'Total customers', value: state.customers.length, sub: `+${state.customers.filter((c: any) => (window.MOCK.TODAY.getTime() - new Date(c.since).getTime())/86400000 <= 30).length} new this month`, icon: 'users', accent: 'oklch(0.6 0.13 250)' },
           { label: 'Active', value: state.customers.filter((c: any) => c.status === 'Active').length, sub: `${state.customers.filter((c: any) => c.status === 'Inactive').length} inactive`, icon: 'check', accent: 'var(--ok)' },
           { label: 'Pending KYC', value: state.customers.filter((c: any) => c.kyc === 'Pending').length, sub: 'avg 4.2h response', icon: 'shield', accent: 'oklch(0.55 0.16 75)' },
           { label: 'Lifetime value', value: `${formatMMK(Math.round(state.customers.reduce((a: number, c: any) => a + c.totalSpend, 0) / 1000000))}M`, sub: 'MMK total', icon: 'invoice', accent: 'oklch(0.55 0.18 285)' },
