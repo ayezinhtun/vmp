@@ -1,12 +1,6 @@
 import { useState, useCallback } from 'react'
 import { MOCK } from '../lib/data'
-
-export interface Activity {
-  ts: string
-  actor: string
-  kind: string
-  text: string
-}
+import type { Activity } from '../types'
 
 export interface ActivityStoreValue {
   activity: Activity[]

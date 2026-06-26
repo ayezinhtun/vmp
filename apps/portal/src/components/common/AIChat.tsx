@@ -1,7 +1,6 @@
 // AI Chat widget — floating across all roles, talks to Claude API
 
 import React, { useState, useEffect, useRef } from 'react'
-import { useStore } from '../../lib/store'
 import Icon from '../../lib/icons'
 
 interface Message {
@@ -14,7 +13,6 @@ interface AIChatWidgetProps {
 }
 
 const AIChatWidget: React.FC<AIChatWidgetProps> = ({ role }) => {
-  const { state } = useStore()
   const [open, setOpen] = useState(false)
   const [minimized, setMinimized] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
@@ -45,7 +43,7 @@ const AIChatWidget: React.FC<AIChatWidgetProps> = ({ role }) => {
 
   const buildContext = () => {
     const customerCtx = role === 'Customer'
-      ? `The current user is a customer (Thiri Ko, Yangon Fintech Group, ID C-1043). They have ${state.vms.filter(v => v.customer === 'C-1043').length} VMs and ${state.invoices.filter(i => i.customer === 'C-1043').length} invoices.`
+      ? `The current user is a customer (Thiri Ko, Yangon Fintech Group, ID C-1043).`
       : `The current user is on the ${role} team.`
     return `You are the helpful assistant for "VPS Myanmar", a Myanmar-based cloud VPS provider. Be concise (2-4 sentences), warm and professional. ${customerCtx}
 

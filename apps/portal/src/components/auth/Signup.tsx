@@ -1,7 +1,7 @@
 // Signup multi-step flow: Account → Personal/Org info → KYC → Payment method → Success
 
 import React, { useState } from 'react'
-import { useStore } from '../../lib/store'
+import useCustomerStore from '../../store/customerStore'
 import Icon from '../../lib/icons'
 import { AuthLayout } from './Auth'
 
@@ -69,7 +69,7 @@ const IaaSCard: React.FC<IaaSCardProps> = ({ selected, onClick, padding = 14, ch
 
 // Signup multi-step flow — full-width IaaS style
 const SignupScreen: React.FC<{ onComplete: (email: string) => void; onSwitchToLogin: () => void }> = ({ onComplete, onSwitchToLogin }) => {
-  const { addCustomer } = useStore()
+  const { addCustomer } = useCustomerStore()
   const [step, setStep] = useState(1)
   const [f, setF] = useState<SignupFormState>({
     name: '', email: '', password: '', confirmPassword: '',

@@ -82,7 +82,7 @@ export const NewTicketForm: React.FC<NewTicketFormProps> = ({ me, onClose, onCre
 
           <div className="field">
             <label>Describe the issue</label>
-            <textarea rows="6" value={f.body} onChange={e => setF({ ...f, body: e.target.value })} placeholder="Include VM IDs, error messages, and any steps already tried…"/>
+            <textarea rows={6} value={f.body} onChange={e => setF({ ...f, body: e.target.value })} placeholder="Include VM IDs, error messages, and any steps already tried…"/>
             <div className="hint">Tip: include the VM ID and the exact error message for fastest resolution.</div>
           </div>
 

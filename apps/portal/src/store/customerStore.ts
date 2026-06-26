@@ -1,19 +1,6 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { MOCK } from '../lib/data'
-
-export interface Customer {
-  id: string
-  name: string
-  company: string
-  email: string
-  phone: string
-  kyc: string
-  since: string
-  totalSpend: number
-  salesperson: string
-  status: string
-  notes: string
-}
+import type { Customer } from '../types'
 
 export interface CustomerStoreValue {
   customers: Customer[]
@@ -22,19 +9,8 @@ export interface CustomerStoreValue {
   setKYC: (id: string, decision: string) => void
 }
 
-const CUSTOMERS_KEY = '__vpsmm_customers_v1'
-
-const loadPersistedCustomers = () => {
-  try { return JSON.parse(localStorage.getItem(CUSTOMERS_KEY) || 'null') } catch { return null }
-}
-
 const useCustomerStore = (): CustomerStoreValue => {
-  const persisted = loadPersistedCustomers()
-  const [customers, setCustomers] = useState<Customer[]>(persisted || MOCK.CUSTOMERS.map((c: Customer) => ({...c})))
-
-  useEffect(() => {
-    try { localStorage.setItem(CUSTOMERS_KEY, JSON.stringify(customers)) } catch {}
-  }, [customers])
+  const [customers, setCustomers] = useState<Customer[]>(MOCK.CUSTOMERS.map((c: Customer) => ({...c})))
 
   const addCustomer = useCallback((c: any) => {
     const maxNum = customers.reduce((m, x) => { const n = parseInt((x.id || '').replace(/\D/g, '')); return n > m ? n : m; }, 1099)

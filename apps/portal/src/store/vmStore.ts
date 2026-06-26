@@ -1,36 +1,6 @@
 import { useState, useCallback } from 'react'
 import { MOCK } from '../lib/data'
-
-export interface VM {
-  id: string
-  name: string
-  customer: string
-  type: string
-  status: string
-  powerState: string
-  vcpu: number
-  ram: number
-  storage: number
-  bandwidth: string
-  os: string
-  publicAccess: boolean
-  interconnect: string[]
-  portForward: string
-  publicIp: string
-  vlan: string
-  datacenter: string
-  node: string
-  start: string
-  expiry: string
-  firewallPolicy: string
-  backup: string
-  proxmoxFlag: string
-  security: boolean
-  notes: string
-  subscription: string
-  priceMonth: number
-  tags?: string[]
-}
+import type { VM } from '../types'
 
 export interface VMStoreValue {
   vms: VM[]
@@ -99,11 +69,19 @@ const useVMStore = (): VMStoreValue => {
     updateVM(id, { powerState: 'Stopped' })
   }, [updateVM])
 
-  const restartVM = useCallback((_id: string) => {
-  }, [])
+  const restartVM = useCallback((id: string) => {
+    const vm = vms.find(v => v.id === id)
+    // In a real implementation, this would call the Proxmox API
+    // For now, we just log the action
+    console.log(`Restarting VM ${vm?.name}`)
+  }, [vms])
 
-  const snapshotVM = useCallback((_id: string, _name?: string) => {
-  }, [])
+  const snapshotVM = useCallback((id: string, name?: string) => {
+    const vm = vms.find(v => v.id === id)
+    const snap = name || `manual-${new Date().toISOString().slice(0, 10)}-${Math.floor(Math.random() * 999)}`
+    // In a real implementation, this would call the Proxmox API
+    console.log(`Created snapshot ${snap} of ${vm?.name}`)
+  }, [vms])
 
   const updateVMTags = useCallback((id: string, tags: string[]) => updateVM(id, { tags }), [updateVM])
   const updateVMNotes = useCallback((id: string, notes: string) => updateVM(id, { notes }), [updateVM])

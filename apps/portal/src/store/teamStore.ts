@@ -1,15 +1,6 @@
 import { useState, useCallback } from 'react'
 import { MOCK } from '../lib/data'
-
-export interface TeamMember {
-  id: string
-  name: string
-  email: string
-  role: string
-  team: string
-  last: string
-  status: string
-}
+import type { TeamMember } from '../types'
 
 export interface TeamStoreValue {
   team: TeamMember[]

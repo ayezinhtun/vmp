@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import StoreProvider from './lib/store'
-import { Sidebar, Topbar } from './components/Shell'
+import { Sidebar, Topbar } from './components/layout/Shell'
 import { AuthShell, useAuth } from './components/auth/Auth'
 import Dashboard from './pages/Dashboard'
 import VMList from './pages/VMList'
@@ -23,7 +22,7 @@ import AIChatWidget from './components/common/AIChat'
 import { CommandPalette, ShortcutsModal, CalendarView } from './components/common/Extras'
 import { NotifPanel, PlaceholderView, TweaksUI } from './components/common'
 import { useTweaks, TweakState } from './components/common/useTweaks'
-import { useStore } from './lib/store'
+import useAlertStore from './store/alertStore'
 
 const ACCENT_MAP: Record<string, number> = {
   '#4F6FE3': 250,
@@ -34,7 +33,7 @@ const ACCENT_MAP: Record<string, number> = {
 }
 
 const AppInner = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: keyof TweakState | Partial<TweakState>, value?: any) => void }) => {
-  const { state } = useStore()
+  const { alerts, markAllAlertsRead } = useAlertStore()
   const auth = useAuth()
   const [view, setView] = useState('dashboard')
   const [notifOpen, setNotifOpen] = useState(false)
@@ -94,7 +93,7 @@ const AppInner = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: key
     console.log('AppInner role changed:', tw.role, 'should render CustomerPortal:', tw.role === 'Customer')
   }, [tw.role])
 
-  const unread = state.alerts.filter(a => !a.read).length
+  const unread = alerts.filter((a: any) => !a.read).length
 
   const crumbs: Record<string, string[]> = {
     'dashboard': ['Overview', 'Dashboard'],
@@ -152,7 +151,7 @@ const AppInner = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: key
               onHelpClick={() => {}}
               unread={unread}
             />
-            {notifOpen && <NotifPanel onAllRead={() => { useStore().markAllAlertsRead(); setNotifOpen(false) }} onViewAll={() => { setView('alerts'); setNotifOpen(false) }}/>}
+            {notifOpen && <NotifPanel onAllRead={() => { markAllAlertsRead(); setNotifOpen(false) }} onViewAll={() => { setView('alerts'); setNotifOpen(false) }}/>}
 
             {view === 'dashboard' && <Dashboard openVM={openVM} setView={setView} openModal={openModal}/>}
             {view === 'alerts' && <AlertsView/>}
@@ -232,11 +231,9 @@ const App = () => {
   })
 
   return (
-    <StoreProvider>
-      <AuthShell setRole={(role) => setTweak('role' as keyof TweakState, role)}>
-        <AppInner tw={tw} setTweak={setTweak} />
-      </AuthShell>
-    </StoreProvider>
+    <AuthShell setRole={(role) => setTweak('role' as keyof TweakState, role)}>
+      <AppInner tw={tw} setTweak={setTweak} />
+    </AuthShell>
   )
 }
 

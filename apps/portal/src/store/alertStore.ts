@@ -1,15 +1,6 @@
 import { useState, useCallback } from 'react'
 import { MOCK } from '../lib/data'
-
-export interface Alert {
-  id: string
-  sev: string
-  title: string
-  body: string
-  ts: string
-  read: boolean
-  type: string
-}
+import type { Alert } from '../types'
 
 export interface AlertStoreValue {
   alerts: Alert[]

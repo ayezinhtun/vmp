@@ -1,9 +1,9 @@
 import React from 'react'
-import { useStore } from '../../lib/store'
+import useUIStore from '../../store/uiStore'
 import Icon from '../../lib/icons'
 
 const Toasts: React.FC = () => {
-  const { toasts, setToasts } = useStore()
+  const { toasts, setToasts } = useUIStore()
 
   if (toasts.length === 0) return null
 

@@ -1,18 +1,6 @@
 import { useState, useCallback } from 'react'
 import { MOCK } from '../lib/data'
-
-export interface Invoice {
-  id: string
-  customer: string
-  vms: string[]
-  amount: number
-  currency: string
-  issued: string
-  due: string
-  status: string
-  method: string
-  receipt: string
-}
+import type { Invoice } from '../types'
 
 export interface InvoiceStoreValue {
   invoices: Invoice[]

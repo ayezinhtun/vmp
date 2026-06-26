@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { useStore } from '../../lib/store'
+import useCustomerStore from '../../store/customerStore'
+import useUIStore from '../../store/uiStore'
 import Icon from '../../lib/icons'
-import { Avatar } from '../../lib/ui'
+import { Avatar } from '../ui/ui'
 
 interface User {
   email: string
@@ -102,7 +103,7 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSwitchToSignup, prefillEmail }) => {
-  const { toast } = useStore()
+  const { toast } = useUIStore()
   const [f, setF] = useState({ email: prefillEmail || '', password: '', remember: true })
   const [showPw, setShowPw] = useState(false)
   const [err, setErr] = useState('')
@@ -463,7 +464,7 @@ interface SignupScreenProps {
 }
 
 const SignupScreen: React.FC<SignupScreenProps> = ({ onComplete, onSwitchToLogin }) => {
-  const { addCustomer } = useStore()
+  const { addCustomer } = useCustomerStore()
   const [step, setStep] = useState(1)
   const [f, setF] = useState({
     name: '', email: '', password: '', confirmPassword: '',

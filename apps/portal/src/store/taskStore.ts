@@ -1,22 +1,6 @@
 import { useState, useCallback } from 'react'
 import { MOCK } from '../lib/data'
-
-export interface Task {
-  id: string
-  title: string
-  customer: string
-  vm: string
-  type: string
-  priority: string
-  assignee: string
-  team: string
-  status: string
-  subscription: string
-  created: string
-  notes: string
-  wfStage?: number
-  createdVmId?: string
-}
+import type { Task } from '../types'
 
 export interface TaskStoreValue {
   tasks: Task[]

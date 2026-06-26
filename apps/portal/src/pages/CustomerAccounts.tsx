@@ -9,8 +9,6 @@
 import React, { useState } from 'react'
 import useCustomerStore from '../store/customerStore'
 import useVMStore from '../store/vmStore'
-import useInvoiceStore from '../store/invoiceStore'
-import useTicketStore from '../store/ticketStore'
 import useUIStore from '../store/uiStore'
 import Icon from '../lib/icons'
 import { Avatar, StatusPill, formatMMK } from '../components/ui/ui'
@@ -24,8 +22,6 @@ interface CustomerAccountManagementViewProps {
 export const CustomerAccountManagementView: React.FC<CustomerAccountManagementViewProps> = ({ openCust, openModal }) => {
   const { customers, updateCustomer } = useCustomerStore()
   const { vms } = useVMStore()
-  const { invoices } = useInvoiceStore()
-  const { tickets } = useTicketStore()
   const { toast } = useUIStore()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [segment, setSegment] = useState('all')

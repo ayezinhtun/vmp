@@ -1,9 +1,12 @@
 // Customer VM action modals — Renew, Upgrade, Change Plan (IaaS style)
 
 import React, { useState } from 'react'
-import { useStore } from '../../lib/store'
+import useTaskStore from '../../store/taskStore'
+import useCustomerStore from '../../store/customerStore'
+import useTicketStore from '../../store/ticketStore'
+import useUIStore from '../../store/uiStore'
 import Icon from '../../lib/icons'
-import { formatMMK } from '../../lib/ui'
+import { formatMMK } from '../ui/ui'
 
 interface VM {
   id: string
@@ -143,8 +146,10 @@ interface CustUpgradeModalProps {
 }
 
 const CustUpgradeModal: React.FC<CustUpgradeModalProps> = ({ vm, onClose }) => {
-  const { addTask, toast, state } = useStore()
-  const me = state.customers.find(c => c.id === vm.customer)
+  const { addTask } = useTaskStore()
+  const { customers } = useCustomerStore()
+  const { toast } = useUIStore()
+  const me = customers.find((c: any) => c.id === vm.customer)
   const [spec, setSpec] = useState({ vcpu: vm.vcpu, ram: vm.ram, storage: vm.storage, bandwidth: vm.bandwidth })
 
   const oldCost = vm.priceMonth
@@ -254,8 +259,10 @@ interface CustChangePlanModalProps {
 }
 
 const CustChangePlanModal: React.FC<CustChangePlanModalProps> = ({ vm, onClose }) => {
-  const { addTask, toast, state } = useStore()
-  const me = state.customers.find(c => c.id === vm.customer)
+  const { addTask } = useTaskStore()
+  const { customers } = useCustomerStore()
+  const { toast } = useUIStore()
+  const me = customers.find((c: any) => c.id === vm.customer)
 
   const plans = [
     { id: 'starter', label: 'Starter', vcpu: 2, ram: 4, storage: 50, price: 90000, desc: 'Small services, dev work' },
@@ -355,8 +362,9 @@ interface SupportTicketModalProps {
 }
 
 const SupportTicketModal: React.FC<SupportTicketModalProps> = ({ onClose }) => {
-  const { addTicket, state } = useStore()
-  const me = state.customers.find(c => c.id === 'C-1043')
+  const { addTicket } = useTicketStore()
+  const { customers } = useCustomerStore()
+  const me = customers.find(c => c.id === 'C-1043')
   const [f, setF] = useState({ subject: '', priority: 'Normal', body: '' })
   return (
     <div className="modal-overlay" onClick={onClose}>

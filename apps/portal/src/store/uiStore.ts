@@ -1,11 +1,5 @@
 import { useState, useCallback, useRef } from 'react'
-
-export interface Toast {
-  id: number
-  msg: string
-  kind: string
-  action?: any
-}
+import type { Toast } from '../types'
 
 export interface UIStoreValue {
   toast: (msg: string, kind?: string, action?: any) => void

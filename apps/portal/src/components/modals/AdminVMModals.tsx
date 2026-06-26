@@ -1,9 +1,14 @@
 // Admin VM action modals — New VM, Renew, Change Spec (matching original UI)
 
 import React, { useState } from 'react'
-import { useStore } from '../../lib/store'
+import useVMStore from '../../store/vmStore'
+import useCustomerStore from '../../store/customerStore'
+import useTaskStore from '../../store/taskStore'
+import useInvoiceStore from '../../store/invoiceStore'
+import useTeamStore from '../../store/teamStore'
+import useUIStore from '../../store/uiStore'
 import Icon from '../../lib/icons'
-import { formatMMK, StatusPill, Avatar } from '../../lib/ui'
+import { formatMMK, StatusPill, Avatar } from '../ui/ui'
 
 interface VM {
   id: string
@@ -22,45 +27,18 @@ interface VM {
   status: string
 }
 
-interface IaaSCardProps {
-  selected: boolean
-  onClick: () => void
-  padding?: number
-  children: React.ReactNode
-}
-
-const IaaSCard: React.FC<IaaSCardProps> = ({ selected, onClick, padding = 14, children }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    style={{
-      padding: `${padding}px`,
-      textAlign: 'left',
-      background: selected ? 'var(--accent-soft)' : 'var(--surface)',
-      border: '1.5px solid',
-      borderColor: selected ? 'var(--accent)' : 'var(--line)',
-      borderRadius: 10,
-      cursor: 'pointer',
-      fontFamily: 'inherit',
-      color: 'var(--ink)',
-      boxShadow: selected ? '0 0 0 3px var(--accent-soft)' : 'none',
-      transition: 'all 0.15s',
-    }}
-  >
-    {children}
-  </button>
-)
-
 // ── New VM Modal ────────────────────────────────────────────────────────
 interface NewVMModalProps {
   onClose: () => void
 }
 
 const NewVMModal: React.FC<NewVMModalProps> = ({ onClose }) => {
-  const { state, addVM, toast } = useStore()
+  const { addVM } = useVMStore()
+  const { customers } = useCustomerStore()
+  const { toast } = useUIStore()
   const [step, setStep] = useState(1)
   const [f, setF] = useState({
-    customer: state.customers.find((c: any) => c.kyc === 'Approved')?.id || '',
+    customer: customers.find((c: any) => c.kyc === 'Approved')?.id || '',
     name: '',
     environment: 'Production',
     label: '',
@@ -91,8 +69,8 @@ const NewVMModal: React.FC<NewVMModalProps> = ({ onClose }) => {
   })
   const set = (k: string, v: any) => setF(x => ({ ...x, [k]: v }))
 
-  const customers = state.customers.filter((c: any) => c.kyc === 'Approved')
-  const cust = customers.find((c: any) => c.id === f.customer)
+  const approvedCustomers = customers.filter((c: any) => c.kyc === 'Approved')
+  const cust = approvedCustomers.find((c: any) => c.id === f.customer)
   const osCatalog = [
     { id: 'ubuntu', name: 'Ubuntu', logo: 'U', accent: 'oklch(0.6 0.17 30)', kind: 'Linux', versions: ['24.04 LTS', '22.04 LTS', '20.04 LTS'] },
     { id: 'debian', name: 'Debian', logo: 'D', accent: 'oklch(0.55 0.18 0)', kind: 'Linux', versions: ['12 (Bookworm)', '11 (Bullseye)'] },
@@ -112,7 +90,6 @@ const NewVMModal: React.FC<NewVMModalProps> = ({ onClose }) => {
   const cpuSteps = [1, 2, 4, 6, 8, 12, 16, 24, 32]
   const ramSteps = [1, 2, 4, 8, 16, 24, 32, 48, 64, 128]
   const storageSteps = [25, 50, 100, 200, 400, 500, 1000, 2000]
-  const bandwidthOpts = ['100 Mbps', '500 Mbps', '1 Gbps', '10 Gbps']
 
   const computedPrice = f.vcpu * 20000 + f.ram * 6000 + f.storage * 200 + (f.bandwidth === '1 Gbps' ? 30000 : f.bandwidth === '500 Mbps' ? 10000 : 0)
 
@@ -443,15 +420,19 @@ interface RenewModalProps {
 }
 
 const RenewModal: React.FC<RenewModalProps> = ({ vm, onClose }) => {
-  const { renew, addInvoice, state } = useStore()
+  const { renew } = useVMStore()
+  const { addInvoice } = useInvoiceStore()
+  const { customers } = useCustomerStore()
+  const { toast } = useUIStore()
   const [months, setMonths] = useState(12)
   const monthOpts = [3, 6, 12, 24]
   const price = vm.priceMonth * months
-  const c = state.customers.find((cust: any) => cust.id === vm.customer)
+  const c = customers.find((cust: any) => cust.id === vm.customer)
 
   const submit = () => {
     renew(vm.id, months)
     addInvoice({ customer: vm.customer, vms: [vm.id], amount: price, due: new Date(Date.now() + 10*86400000).toISOString().slice(0,10) })
+    toast(`Renewed ${vm.name} for ${months} months`, 'ok')
     onClose()
   }
 
@@ -510,7 +491,9 @@ interface SpecModalProps {
 }
 
 const SpecModal: React.FC<SpecModalProps> = ({ vm, onClose }) => {
-  const { updateVM, addTask, toast } = useStore()
+  const { updateVM } = useVMStore()
+  const { addTask } = useTaskStore()
+  const { toast } = useUIStore()
   const [f, setF] = useState({ vcpu: vm.vcpu, ram: vm.ram, storage: vm.storage })
   const set = (k: string, v: any) => setF(x => ({ ...x, [k]: v }))
   const oldPrice = vm.priceMonth
@@ -570,21 +553,24 @@ interface NewTaskModalProps {
 }
 
 const NewTaskModal: React.FC<NewTaskModalProps> = ({ onClose, presetStatus }) => {
-  const { addTask, state } = useStore()
+  const { addTask } = useTaskStore()
+  const { customers } = useCustomerStore()
+  const { team } = useTeamStore()
+  const { vms } = useVMStore()
   const [f, setF] = useState({
     title: '',
-    customer: state.customers[0]?.id || '',
+    customer: customers[0]?.id || '',
     vm: '',
     type: 'New',
     priority: 'Normal',
-    assignee: state.team.find((t: any) => t.role === 'Engineer')?.name || '—',
+    assignee: team.find((t: any) => t.role === 'Engineer')?.name || '—',
     team: 'Provisioning',
     subscription: '1 year',
     status: presetStatus || 'Pending',
     notes: '',
   })
   const set = (k: string, v: any) => setF(x => ({ ...x, [k]: v }))
-  const custVMs = state.vms.filter((v: any) => v.customer === f.customer)
+  const custVMs = vms.filter((v: any) => v.customer === f.customer)
 
   const submit = () => {
     addTask(f)
@@ -604,7 +590,7 @@ const NewTaskModal: React.FC<NewTaskModalProps> = ({ onClose, presetStatus }) =>
             <div className="grid-2" style={{ gap: 12 }}>
               <div className="field"><label>Customer</label>
                 <select value={f.customer} onChange={e => set('customer', e.target.value)}>
-                  {state.customers.map((c: any) => <option key={c.id} value={c.id}>{c.company}</option>)}
+                  {customers.map((c: any) => <option key={c.id} value={c.id}>{c.company}</option>)}
                 </select>
               </div>
               <div className="field"><label>Related VM (optional)</label>
@@ -623,7 +609,7 @@ const NewTaskModal: React.FC<NewTaskModalProps> = ({ onClose, presetStatus }) =>
               <div className="field"><label>Assignee</label>
                 <select value={f.assignee} onChange={e => set('assignee', e.target.value)}>
                   <option value="—">Unassigned</option>
-                  {state.team.map((t: any) => <option key={t.id} value={t.name}>{t.name} · {t.role}</option>)}
+                  {team.map((t: any) => <option key={t.id} value={t.name}>{t.name} · {t.role}</option>)}
                 </select>
               </div>
               <div className="field"><label>Team</label><select value={f.team} onChange={e => set('team', e.target.value)}><option>Sales</option><option>Provisioning</option><option>Network</option><option>Finance</option></select></div>
@@ -647,7 +633,8 @@ interface TerminateModalProps {
 }
 
 const TerminateModal: React.FC<TerminateModalProps> = ({ vm, onClose }) => {
-  const { deleteVM, toast } = useStore()
+  const { deleteVM } = useVMStore()
+  const { toast } = useUIStore()
   const [confirmed, setConfirmed] = useState(false)
 
   const submit = () => {
@@ -695,13 +682,14 @@ interface NewCustomerModalProps {
 }
 
 const NewCustomerModal: React.FC<NewCustomerModalProps> = ({ onClose }) => {
-  const { addCustomer, state } = useStore()
+  const { addCustomer } = useCustomerStore()
+  const { team } = useTeamStore()
   const [f, setF] = useState({ 
     name: '', 
     company: '', 
     email: '', 
     phone: '', 
-    salesperson: state.team.find((t: any) => t.role === 'Sales')?.name || 'Su Su' 
+    salesperson: team.find((t: any) => t.role === 'Sales')?.name || 'Su Su' 
   })
   const set = (k: string, v: any) => setF(x => ({ ...x, [k]: v }))
 
@@ -730,7 +718,7 @@ const NewCustomerModal: React.FC<NewCustomerModalProps> = ({ onClose }) => {
             <div className="field">
               <label>Assigned salesperson</label>
               <select value={f.salesperson} onChange={e => set('salesperson', e.target.value)}>
-                {state.team.filter((t: any) => t.role === 'Sales').map((t: any) => <option key={t.id}>{t.name}</option>)}
+                {team.filter((t: any) => t.role === 'Sales').map((t: any) => <option key={t.id}>{t.name}</option>)}
               </select>
             </div>
             <div style={{ padding: 12, background: 'var(--warn-soft)', borderRadius: 6, fontSize: 12, color: 'oklch(0.4 0.13 75)', display: 'flex', gap: 8 }}>
@@ -758,7 +746,7 @@ interface EmailModalProps {
 }
 
 const EmailModal: React.FC<EmailModalProps> = ({ onClose, to, template }) => {
-  const { toast } = useStore()
+  const { toast } = useUIStore()
   const templates: Record<string, { subject: string; body: string }> = {
     welcome: { subject: 'Welcome to VPS Myanmar', body: `Hi,\n\nThank you for signing up. To activate your account, please complete the KYC verification by uploading your ID and company registration documents.\n\nThe link is in the portal.\n\n— VPS Myanmar Team` },
     renewal: { subject: 'Your VM subscription is expiring soon', body: `Hi,\n\nYour subscription is set to expire in 7 days. To avoid service interruption, please confirm your renewal.\n\nReply to this email or visit the portal.\n\n— VPS Myanmar Team` },
@@ -811,10 +799,13 @@ interface TaskDetailModalProps {
 }
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ taskId, onClose }) => {
-  const { state, updateTask, toast } = useStore()
-  const t = state.tasks.find((x: any) => x.id === taskId)
+  const { updateTask } = useTaskStore()
+  const { tasks } = useTaskStore()
+  const { customers } = useCustomerStore()
+  const { toast } = useUIStore()
+  const t = tasks.find((x: any) => x.id === taskId)
   if (!t) return null
-  const c = state.customers.find((cust: any) => cust.id === t.customer)
+  const c = customers.find((cust: any) => cust.id === t.customer)
 
   const [f, setF] = useState({
     assignee: t.assignee || '—',
@@ -923,14 +914,16 @@ interface NewInvoiceModalProps {
 }
 
 const NewInvoiceModal: React.FC<NewInvoiceModalProps> = ({ onClose, presetCustomer }) => {
-  const { addInvoice, state } = useStore()
+  const { addInvoice } = useInvoiceStore()
+  const { customers } = useCustomerStore()
+  const { vms } = useVMStore()
   const [f, setF] = useState({
-    customer: presetCustomer || state.customers[0]?.id || '',
+    customer: presetCustomer || customers[0]?.id || '',
     vms: [] as string[],
     months: 6,
   })
   const set = (k: string, v: any) => setF(x => ({ ...x, [k]: v }))
-  const custVMs = state.vms.filter((v: any) => v.customer === f.customer && v.status !== 'Expired')
+  const custVMs = vms.filter((v: any) => v.customer === f.customer && v.status !== 'Expired')
   const amount = custVMs.filter((v: any) => f.vms.includes(v.id)).reduce((a: number, v: any) => a + v.priceMonth * f.months, 0)
   const dueDate = new Date(Date.now() + 10 * 86400000).toISOString().slice(0, 10)
   const toggle = (id: string) => set('vms', f.vms.includes(id) ? f.vms.filter((x: string) => x !== id) : [...f.vms, id])
@@ -951,7 +944,7 @@ const NewInvoiceModal: React.FC<NewInvoiceModalProps> = ({ onClose, presetCustom
           <div className="flex col gap-3">
             <div className="field"><label>Customer</label>
               <select value={f.customer} onChange={e => { set('customer', e.target.value); set('vms', []); }}>
-                {state.customers.map((c: any) => <option key={c.id} value={c.id}>{c.company}</option>)}
+                {customers.map((c: any) => <option key={c.id} value={c.id}>{c.company}</option>)}
               </select>
             </div>
             <div className="field"><label>Billing period</label>
@@ -1004,7 +997,8 @@ interface InviteMemberModalProps {
 }
 
 const InviteMemberModal: React.FC<InviteMemberModalProps> = ({ onClose }) => {
-  const { addMember, toast } = useStore()
+  const { addMember } = useTeamStore()
+  const { toast } = useUIStore()
   const [f, setF] = useState({ name: '', email: '', role: 'Sales', team: 'Sales' })
   const set = (k: string, v: any) => setF(x => ({ ...x, [k]: v }))
 

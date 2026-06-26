@@ -1,9 +1,11 @@
 // Command palette (⌘K), keyboard shortcuts overlay, calendar of expiries
 
 import React, { useState, useEffect, useRef } from 'react'
-import { useStore } from '../../lib/store'
+import useVMStore from '../../store/vmStore'
+import useCustomerStore from '../../store/customerStore'
+import useInvoiceStore from '../../store/invoiceStore'
 import Icon from '../../lib/icons'
-import { formatMMK, StatusPill } from '../../lib/ui'
+import { formatMMK, StatusPill } from '../ui/ui'
 
 interface CommandPaletteProps {
   onClose: () => void
@@ -22,16 +24,18 @@ interface CommandItem {
 }
 
 const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose, setView, openVM, openCust, openModal }) => {
-  const { state } = useStore()
+  const { vms } = useVMStore()
+  const { customers } = useCustomerStore()
+  const { invoices } = useInvoiceStore()
   const [q, setQ] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   
   useEffect(() => { inputRef.current?.focus() }, [])
 
   const items: CommandItem[] = [
-    ...state.vms.map(v => ({ type: 'VM', label: v.name, sub: `${v.id} · ${state.customers.find(c => c.id === v.customer)?.company}`, action: () => { openVM(v.id); onClose() }, icon: 'server' })),
-    ...state.customers.map(c => ({ type: 'Customer', label: c.company, sub: `${c.name} · ${c.id}`, action: () => { openCust(c.id); onClose() }, icon: 'building' })),
-    ...state.invoices.map(i => ({ type: 'Invoice', label: i.id, sub: `MMK ${formatMMK(i.amount)} · ${state.customers.find(c => c.id === i.customer)?.company}`, action: () => { setView('finance'); onClose() }, icon: 'invoice' })),
+    ...vms.map((v: any) => ({ type: 'VM', label: v.name, sub: `${v.id} · ${customers.find((c: any) => c.id === v.customer)?.company}`, action: () => { openVM(v.id); onClose() }, icon: 'server' })),
+    ...customers.map((c: any) => ({ type: 'Customer', label: c.company, sub: `${c.name} · ${c.id}`, action: () => { openCust(c.id); onClose() }, icon: 'building' })),
+    ...invoices.map((i: any) => ({ type: 'Invoice', label: i.id, sub: `MMK ${formatMMK(i.amount)} · ${customers.find((c: any) => c.id === i.customer)?.company}`, action: () => { setView('finance'); onClose() }, icon: 'invoice' })),
     { type: 'Action', label: 'New VM', sub: 'Start provisioning wizard', action: () => { openModal('newvm'); onClose() }, icon: 'plus' },
     { type: 'Action', label: 'New customer', sub: 'Add a new customer account', action: () => { openModal('newcust'); onClose() }, icon: 'plus' },
     { type: 'Action', label: 'New task', sub: 'Create provisioning task', action: () => { openModal('newtask'); onClose() }, icon: 'plus' },
@@ -170,7 +174,8 @@ interface CalendarViewProps {
 }
 
 const CalendarView: React.FC<CalendarViewProps> = ({ openVM }) => {
-  const { state } = useStore()
+  const { vms } = useVMStore()
+  const { customers } = useCustomerStore()
   const today: Date = (window as any).MOCK.TODAY
   const [monthOffset, setMonthOffset] = useState(0)
   const base = new Date(today)
@@ -182,7 +187,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ openVM }) => {
   const firstDay = base.getDay()
 
   const byDate: Record<number, any[]> = {}
-  state.vms.forEach(v => {
+  vms.forEach((v: any) => {
     if (!v.expiry || v.expiry === '—') return
     const d = new Date(v.expiry)
     if (d.getMonth() === base.getMonth() && d.getFullYear() === base.getFullYear()) {
@@ -191,7 +196,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ openVM }) => {
     }
   })
 
-  const monthVMs = state.vms.filter(v => {
+  const monthVMs = vms.filter((v: any) => {
     if (!v.expiry || v.expiry === '—') return false
     const d = new Date(v.expiry)
     return d.getMonth() === base.getMonth() && d.getFullYear() === base.getFullYear()
@@ -268,8 +273,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ openVM }) => {
           <table className="tbl">
             <thead><tr><th>Date</th><th>VM</th><th>Customer</th><th className="right">Renewal value (1y)</th><th>Status</th></tr></thead>
             <tbody>
-              {monthVMs.sort((a, b) => new Date(a.expiry || '').getTime() - new Date(b.expiry || '').getTime()).map(v => {
-                const c = state.customers.find(c => c.id === v.customer)
+              {monthVMs.sort((a, b) => new Date(a.expiry || '').getTime() - new Date(b.expiry || '').getTime()).map((v: any) => {
+                const c = customers.find((c: any) => c.id === v.customer)
                 return (
                   <tr key={v.id} onClick={() => openVM(v.id)}>
                     <td className="tnum text-sm">{v.expiry}</td>
