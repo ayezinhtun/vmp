@@ -2,24 +2,27 @@ import { useState, useEffect } from 'react'
 import StoreProvider from './lib/store'
 import { Sidebar, Topbar } from './components/Shell'
 import { AuthShell, useAuth } from './components/auth/Auth'
-import Dashboard from './components/views/Dashboard'
-import VMList, { VMDrawer } from './components/views/VMList'
+import Dashboard from './pages/Dashboard'
+import VMList from './pages/VMList'
+import VMDrawer from './components/vm/VMDrawer'
 import { NewVMModal, RenewModal, SpecModal, TerminateModal, NewTaskModal, NewCustomerModal, EmailModal, NewInvoiceModal, InviteMemberModal } from './components/modals/AdminVMModals'
-import CustomersView, { CustomerDrawer } from './components/views/Customers'
-import { TeamView, SettingsView } from './components/views/Team'
-import { FinanceView, ReportsView } from './components/views/Finance'
-import { TasksView, ActivityView, AlertsView, NetworkView, TaskDrawer } from './components/views/Ops'
-import { CustomerAccountManagementView } from './components/views/CustomerAccounts'
-import { KYCReviewView } from './components/views/KYCReview'
-import { AgingView, ReconciliationView, RecurringView, TaxView } from './components/views/FinanceExtras'
-import { AccountSettingsView } from './components/views/AccountSettings'
-import { SystemHealthView, AuditLogView, AnnouncementsView, ApiKeysView, BackupCenterView } from './components/views/AdminExtras'
-import CustomerPortal from './components/views/CustomerPortal'
+import CustomersView from './pages/Customers'
+import CustomerDrawer from './components/customer/CustomerDrawer'
+import { TeamView, SettingsView } from './pages/Team'
+import { FinanceView, ReportsView } from './pages/Finance'
+import { TasksView, ActivityView, AlertsView, NetworkView, TaskDrawer } from './pages/Ops'
+import { CustomerAccountManagementView } from './pages/CustomerAccounts'
+import { KYCReviewView } from './pages/KYCReview'
+import { AgingView, ReconciliationView, RecurringView, TaxView } from './pages/FinanceExtras'
+import { AccountSettingsView } from './pages/AccountSettings'
+import { SystemHealthView, AuditLogView, AnnouncementsView, ApiKeysView, BackupCenterView } from './pages/AdminExtras'
+import CustomerPortal from './pages/CustomerPortal'
 import RoleSwitcher from './components/common/RoleSwitcher'
 import Toasts from './components/common/Toasts'
 import AIChatWidget from './components/common/AIChat'
 import { CommandPalette, ShortcutsModal, CalendarView } from './components/common/Extras'
-import { TweaksPanel, TweakSection, TweakSelect, TweakText, TweakRadio, TweakColor } from './components/common/TweaksPanel'
+import { NotifPanel, PlaceholderView, TweaksUI } from './components/common'
+import { useTweaks, TweakState } from './components/common/useTweaks'
 import { useStore } from './lib/store'
 
 const ACCENT_MAP: Record<string, number> = {
@@ -29,45 +32,6 @@ const ACCENT_MAP: Record<string, number> = {
   '#8060D4': 285,
   '#C9883A': 75,
 }
-
-interface TweakState {
-  role: string
-  theme: string
-  accent: string
-  roleNames: Record<string, string>
-}
-
-// Local useTweaks implementation to match TweaksPanel's signature
-const useTweaks = (initial: TweakState) => {
-  const [tw, setTw] = useState<TweakState>(initial)
-  const setTweak = (keyOrEdits: keyof TweakState | Partial<TweakState>, value?: any) => {
-    setTw(prev => {
-      if (typeof keyOrEdits === 'object' && keyOrEdits !== null) {
-        return { ...prev, ...keyOrEdits }
-      }
-      return { ...prev, [keyOrEdits]: value }
-    })
-  }
-  return [tw, setTweak] as const
-}
-
-
-// Placeholder views for unconverted components
-const PlaceholderView = ({ title, description }: { title: string; description: string }) => (
-  <div className="content">
-    <div className="page-head">
-      <h1 className="page-title">{title}</h1>
-    </div>
-    <div className="card">
-      <div className="card-body">
-        <div className="empty">
-          <div className="title">{title}</div>
-          <div className="sub">{description}</div>
-        </div>
-      </div>
-    </div>
-  </div>
-)
 
 const AppInner = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: keyof TweakState | Partial<TweakState>, value?: any) => void }) => {
   const { state } = useStore()
@@ -170,33 +134,6 @@ const AppInner = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: key
     'account': ['You', 'Account settings'],
   }
 
-  const NotifPanel = ({ onAllRead, onViewAll }: any) => {
-    const { state, markAlertRead } = useStore()
-    const sevColor: Record<string, string> = { urgent: 'urgent', warn: 'warn', info: 'info' }
-    return (
-      <div className="notif-panel">
-        <div className="notif-head">
-          <div className="fw-6">Notifications</div>
-          <button className="btn ghost sm" onClick={onAllRead}>Mark all read</button>
-        </div>
-        <div className="notif-list">
-          {state.alerts.slice(0, 6).map(a => (
-            <div key={a.id} className={`notif ${!a.read ? 'unread' : ''}`} onClick={() => markAlertRead(a.id)}>
-              <span className={`sev-dot ${sevColor[a.sev]}`}/>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="title">{a.title}</div>
-                <div className="body">{a.body}</div>
-                <div className="ts">{a.ts}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div style={{ padding: 10, borderTop: '1px solid var(--line)', textAlign: 'center' }}>
-          <button className="btn sm w-full" onClick={onViewAll}>View all alerts</button>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="app">
@@ -223,7 +160,7 @@ const AppInner = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: key
             {view === 'activity' && <ActivityView/>}
             {view === 'vms' && <VMList openVM={openVM} openModal={openModal}/>}
             {drawerVmId && <VMDrawer vmId={drawerVmId} onClose={closeDrawer} openCust={openCust} openModal={openModal}/>}
-            {view === 'tasks' && <TasksView openVM={openVM} openCust={openCust} openModal={openModal} openTask={openTask}/>}
+            {view === 'tasks' && <TasksView openModal={openModal} openTask={openTask}/>}
             {drawerTaskId && <TaskDrawer taskId={drawerTaskId} onClose={closeTaskDrawer}/>}
             {view === 'network' && <NetworkView openVM={openVM} openModal={openModal}/>}
             {view === 'console' && <PlaceholderView title="Web Console" description="Proxmox web console - coming soon"/>}
@@ -277,44 +214,6 @@ const AppInner = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: key
 
       <TweaksUI tw={tw} setTweak={setTweak}/>
     </div>
-  )
-}
-
-const TweaksUI = ({ tw, setTweak }: { tw: TweakState; setTweak: (keyOrEdits: keyof TweakState | Partial<TweakState>, value?: any) => void }) => {
-  const setRoleName = (role: string, name: string) => setTweak('roleNames' as keyof TweakState, { ...(tw.roleNames || {}), [role]: name })
-  const rn = tw.roleNames || {}
-  return (
-    <TweaksPanel title="Tweaks">
-      <TweakSection label="Role">
-        <TweakSelect
-          label="View as"
-          value={tw.role}
-          options={['Admin', 'Sales', 'Engineer', 'Finance', 'Customer'].map(r => ({ value: r, label: rn[r] || r }))}
-          onChange={(v) => setTweak('role' as keyof TweakState, v)}
-        />
-      </TweakSection>
-      <TweakSection label="Name role views">
-        <TweakText label="Admin" value={rn.Admin || ''} placeholder="Administrator" onChange={v => setRoleName('Admin', v)}/>
-        <TweakText label="Sales" value={rn.Sales || ''} placeholder="Sales" onChange={v => setRoleName('Sales', v)}/>
-        <TweakText label="Engineer" value={rn.Engineer || ''} placeholder="Engineer" onChange={v => setRoleName('Engineer', v)}/>
-        <TweakText label="Finance" value={rn.Finance || ''} placeholder="Finance" onChange={v => setRoleName('Finance', v)}/>
-        <TweakText label="Customer" value={rn.Customer || ''} placeholder="Customer" onChange={v => setRoleName('Customer', v)}/>
-      </TweakSection>
-      <TweakSection label="Appearance">
-        <TweakRadio
-          label="Theme"
-          value={tw.theme}
-          options={[{value: 'light', label: 'Light'}, {value: 'dark', label: 'Dark'}]}
-          onChange={(v) => setTweak('theme' as keyof TweakState, v)}
-        />
-        <TweakColor
-          label="Accent"
-          value={tw.accent}
-          options={['#4F6FE3', '#3D9C6E', '#C25A4B', '#8060D4', '#C9883A']}
-          onChange={(v) => setTweak('accent' as keyof TweakState, v)}
-        />
-      </TweakSection>
-    </TweaksPanel>
   )
 }
 
